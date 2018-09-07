@@ -1,4 +1,4 @@
-package com.example.sohyunkim.project_1;
+package com.example.sohyunkim.onairs;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -8,7 +8,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
-import android.widget.Toast;
+import com.example.sohyunkim.project_1.R;
 
 public class LoginActivity extends AppCompatActivity{
 

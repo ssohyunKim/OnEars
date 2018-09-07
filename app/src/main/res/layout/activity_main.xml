@@ -3,16 +3,48 @@
     android:orientation="vertical"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    android:background="#00AAAA">
+    android:background="@color/whitesmoke">
+
+    <LinearLayout
+        android:id="@+id/lin_miniplayer"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <ImageButton
+            android:id="@+id/play_button"
+            android:layout_width="125dp"
+            android:layout_height="40dp"
+            android:background="?attr/selectableItemBackground"
+            android:src="@drawable/play_button" />
+
+        <Button
+            android:id="@+id/button2"
+            android:layout_width="120dp"
+            android:layout_height="40dp"
+            android:background="?attr/selectableItemBackground"
+            android:text="더보기"
+            android:textColor="@color/midnightblue" />
+
+        <ImageButton
+            android:id="@+id/pause_button"
+            android:layout_width="130dp"
+            android:layout_height="40dp"
+            android:background="?attr/selectableItemBackground"
+            android:src="@drawable/pause_button" />
+    </LinearLayout>
 
     <LinearLayout
         android:layout_width="fill_parent"
         android:id="@+id/im1"
         android:layout_height="wrap_content"
         android:layout_weight="1">
+
         <FrameLayout
             android:layout_width="fill_parent"
             android:layout_height="wrap_content">
+
             <ListView
                 android:id="@+id/listView1"
                 android:listSelector="#00000000"
@@ -21,24 +53,26 @@
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:transcriptMode="alwaysScroll"/>
+
         </FrameLayout>
     </LinearLayout>
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@id/im1"
+        android:background="@color/whitesmoke"
         android:orientation="vertical">
 
         <ImageButton
             android:id="@+id/button1"
-            android:layout_width="100dp"
-            android:layout_height="100dp"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
             android:layout_gravity="center"
-            android:background="@android:color/transparent"
-            android:scaleType="fitXY"
             android:layout_weight="1"
-            android:src="@drawable/voice_btn_1" />
-
+            android:background="@color/whitesmoke"
+            android:scaleType="fitXY"
+            android:src="@drawable/microphone_b" />
 
     </LinearLayout>
 </LinearLayout>

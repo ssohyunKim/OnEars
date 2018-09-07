@@ -1,4 +1,4 @@
-package com.example.sohyunkim.project_1;
+package com.example.sohyunkim.onairs;
 
 import org.junit.Test;
 
