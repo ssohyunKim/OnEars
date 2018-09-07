@@ -29,11 +29,11 @@ public class MainListAdapter extends BaseAdapter {
   public class ListContents {
 
     String msg;
-    int type;
+    ChatItemType type;
 
-    ListContents(String _msg, int _type) {
-      this.msg = _msg;
-      this.type = _type;
+    ListContents(String msg, ChatItemType type) {
+      this.msg = msg;
+      this.type = type;
     }
   }
 
@@ -46,9 +46,9 @@ public class MainListAdapter extends BaseAdapter {
   }
 
   // 외부에서 아이템 추가 요청 시 사용
-  public void add(String _msg, int _type) {
+  public void add(String msg, ChatItemType type) {
 
-    m_List.add(new ListContents(_msg, _type));
+    m_List.add(new ListContents(msg, type));
   }
 
   // 외부에서 아이템 삭제 요청 시 사용
@@ -78,7 +78,7 @@ public class MainListAdapter extends BaseAdapter {
     final Context context = parent.getContext();
 
     CustomHolder holder = null;
-    LinearLayout wrappinglayout = null;
+    LinearLayout wrappingLayout = null;
     RelativeLayout chatItemLayout = null;
     TextView textView = null;
     LinearLayout buttonWrapper = null;
@@ -97,7 +97,7 @@ public class MainListAdapter extends BaseAdapter {
           .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
       convertView = inflater.inflate(R.layout.chat_item, parent, false);
 
-      wrappinglayout = (LinearLayout) convertView.findViewById(R.id.layout);
+      wrappingLayout = (LinearLayout) convertView.findViewById(R.id.layout);
       textView = (TextView) convertView.findViewById(R.id.text);
       chatItemLayout = (RelativeLayout) convertView.findViewById(R.id.chatItemLayout);
       buttonWrapper = (LinearLayout) convertView
@@ -106,7 +106,7 @@ public class MainListAdapter extends BaseAdapter {
       pauseBtn = (ImageButton) convertView.findViewById(R.id.pause_button);
 
       holder = new CustomHolder();
-      holder.wrappinglayout = wrappinglayout;
+      holder.wrappingLayout = wrappingLayout;
       holder.textView = textView;
       holder.chatItemLayout = chatItemLayout;
       holder.buttonWrapper = buttonWrapper;
@@ -119,7 +119,7 @@ public class MainListAdapter extends BaseAdapter {
       Log.d("MainListAdapter", "msg : " + m_List.get(position).msg);
       Log.d("MainListAdapter", "type : " + m_List.get(position).type);
       holder = (CustomHolder) convertView.getTag();
-      wrappinglayout = holder.wrappinglayout;
+      wrappingLayout = holder.wrappingLayout;
       textView = holder.textView;
       chatItemLayout = holder.chatItemLayout;
       buttonWrapper = holder.buttonWrapper;
@@ -155,44 +155,24 @@ public class MainListAdapter extends BaseAdapter {
       }
     });
 
-    if (m_List.get(position).type == 0) {
+    if (m_List.get(position).type == ChatItemType.APP_TEXT_BUTTON) {
       Log.d("MainListAdapter", "hello my pos is : " + position);
       Log.d("MainListAdapter", "my text is : " + textView.getText());
       Log.d("MainListAdapter", "my text is : " + textView.getId());
-      Log.d("MainListAdapter", "my layout is : " + wrappinglayout.getId());
+      Log.d("MainListAdapter", "my layout is : " + wrappingLayout.getId());
       textView.setVisibility(View.VISIBLE);
-      //textView.setBackgroundResource(R.drawable.other_balloon_shape);
-      wrappinglayout.setGravity(Gravity.LEFT);
       chatItemLayout.setBackgroundResource(R.drawable.other_balloon_shape);
+      wrappingLayout.setGravity(Gravity.LEFT);
       buttonWrapper.setVisibility(View.VISIBLE);
       playBtn.setVisibility(View.VISIBLE);
       pauseBtn.setVisibility(View.VISIBLE);
-    } else if (m_List.get(position).type == 1) {
+    } else if (m_List.get(position).type == ChatItemType.USER) {
       textView.setVisibility(View.VISIBLE);
       buttonWrapper.setVisibility(View.GONE);
       playBtn.setVisibility(View.GONE);
       pauseBtn.setVisibility(View.GONE);
-      textView.setBackgroundResource(R.drawable.my_balloon_shape);
-      wrappinglayout.setGravity(Gravity.RIGHT);
-    } else if (m_List.get(position).type == 2) {
-      textView.setVisibility(View.VISIBLE);
-      textView.setBackgroundResource(R.drawable.datebg);
-      buttonWrapper.setVisibility(View.GONE);
-      playBtn.setVisibility(View.GONE);
-      pauseBtn.setVisibility(View.GONE);
-      wrappinglayout.setGravity(Gravity.CENTER);
-    } else if (m_List.get(position).type == 3) {
-      buttonWrapper.setBackgroundResource(R.drawable.other_balloon_shape);
-      buttonWrapper.setVisibility(View.VISIBLE);
-      playBtn.setVisibility(View.VISIBLE);
-      pauseBtn.setVisibility(View.VISIBLE);
-      Log.d("MainListAdapter", "hello my pos is : " + position);
-      Log.d("MainListAdapter", "my text is : " + textView.getText());
-      Log.d("MainListAdapter", "my text is : " + textView.getId());
-      Log.d("MainListAdapter", "my layout is : " + wrappinglayout.getId());
-      //text.setBackgroundResource(R.drawable.other_balloon_shape);
-      wrappinglayout.setGravity(Gravity.LEFT);
-      textView.setVisibility(View.GONE);
+      chatItemLayout.setBackgroundResource(R.drawable.my_balloon_shape);
+      wrappingLayout.setGravity(Gravity.RIGHT);
     }
 
     // 리스트 아이템을 터치 했을 때 이벤트 발생
@@ -221,7 +201,7 @@ public class MainListAdapter extends BaseAdapter {
 
   private class CustomHolder {
 
-    LinearLayout wrappinglayout;
+    LinearLayout wrappingLayout;
     RelativeLayout chatItemLayout;
     TextView textView;
     LinearLayout buttonWrapper;
