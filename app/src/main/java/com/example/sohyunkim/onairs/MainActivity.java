@@ -83,9 +83,8 @@ public class MainActivity extends AppCompatActivity {
         // ListView에 어댑터 연결
         m_ListView.setAdapter(m_Adapter);
 
-        m_Adapter.add("정치, 경제, 건강, 문화, 세계, 기술 중에서 \n"+"원하시는 메뉴를 말씀해 주세요.",0);
-        m_Adapter.add("hello", 3);
-        //m_Adapter.add("건강",1);
+        m_Adapter.add("정치, 경제, 건강, 문화, 세계, 기술 중에서 \n"+"원하시는 메뉴를 말씀해 주세요.",ChatItemType.APP_TEXT_BUTTON);
+        m_Adapter.add("건강",ChatItemType.USER);
 
         if (ContextCompat.checkSelfPermission(this,
                 Manifest.permission.RECORD_AUDIO)
@@ -150,15 +149,13 @@ public class MainActivity extends AppCompatActivity {
 
             Log.d("MainActivity","voice result :"+result[0]);
 
-            m_Adapter.add(text,1);
+            m_Adapter.add(text,ChatItemType.USER);
             m_Adapter.notifyDataSetChanged();
 
             Toast.makeText(appContext, text, Toast.LENGTH_LONG).show();
             //Intent intent1 = new Intent(getApplicationContext(),CustomAdapter.class);
             intent1.putExtra("result",text);
             //startActivity(intent1);
-
-
 
             //mMessageView.setText(result[0]);
 
