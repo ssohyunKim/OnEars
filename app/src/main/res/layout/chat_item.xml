@@ -58,7 +58,7 @@
         android:layout_width="50dp"
         android:layout_height="40dp"
         android:background="?attr/selectableItemBackground"
-        android:src="@drawable/play_button"
+        android:src="@drawable/play_button_2"
         android:visibility="gone"/>
 
       <ImageButton xmlns:android="http://schemas.android.com/apk/res/android"
