@@ -14,6 +14,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.Toast;
@@ -31,7 +32,7 @@ public class MainActivity extends AppCompatActivity {
     private final int MY_PERMISSIONS_RECORD_AUDIO = 1;
     private MediaPlayer mediaPlayer;
     private int playbackPosition = 0;
-
+    Button button2;
     private Context appContext;
 
     private Intent intent1;
@@ -40,12 +41,32 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        intent = getIntent();
+
+        String userID = null;
+        SaveSharedPreferences.saveUserIDState(MainActivity.this, userID);
+
+        String name = intent.getStringExtra("name");
+        String age = intent.getStringExtra("age");
+        String gender = intent.getStringExtra("gender");
+        String concern = intent.getStringExtra("concern");
+
+        if(name.equals(""))
+            Toast.makeText(this,"이름이 없습니다!", Toast.LENGTH_SHORT).show();
+        else
+            Toast.makeText(this, "환영합니다 "+name+" 님",Toast.LENGTH_SHORT).show();
+
+
         appContext = getApplicationContext();
 
-        //intent1 이동
-        intent1 = new Intent(appContext, CustomAdapter.class);
-
-        //오디오 버튼
+        button2 = (Button)findViewById(R.id.button2);
+        button2.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View view){
+                Toast.makeText(getApplicationContext(), "Webi_GetPreviousMessages",Toast.LENGTH_LONG).show();
+        }
+        });
+/*        //오디오 버튼
         ImageButton start = (ImageButton)findViewById(R.id.play_button);
         ImageButton pause = (ImageButton)findViewById(R.id.pause_button);
         start.setOnClickListener(new View.OnClickListener() {
@@ -71,7 +92,7 @@ public class MainActivity extends AppCompatActivity {
                         mediaPlayer.pause();
                     }
             }
-        });
+        });*/
 
 
         // 커스텀 어댑터 생성
@@ -83,8 +104,8 @@ public class MainActivity extends AppCompatActivity {
         // ListView에 어댑터 연결
         m_ListView.setAdapter(m_Adapter);
 
-        m_Adapter.add("정치, 경제, 건강, 문화, 세계, 기술 중에서 \n"+"원하시는 메뉴를 말씀해 주세요.",ChatItemType.APP_TEXT_BUTTON);
-        m_Adapter.add("건강",ChatItemType.USER);
+        m_Adapter.add("뉴스, 메일, 핫 이슈 중에서 원하시는 메뉴를 말씀해 주세요. ",ChatItemType.APP_TEXT_BUTTON);
+        //m_Adapter.add("",ChatItemType.USER);
 
         if (ContextCompat.checkSelfPermission(this,
                 Manifest.permission.RECORD_AUDIO)
@@ -153,13 +174,7 @@ public class MainActivity extends AppCompatActivity {
             m_Adapter.notifyDataSetChanged();
 
             Toast.makeText(appContext, text, Toast.LENGTH_LONG).show();
-            //Intent intent1 = new Intent(getApplicationContext(),CustomAdapter.class);
-            intent1.putExtra("result",text);
-            //startActivity(intent1);
 
-            //mMessageView.setText(result[0]);
-
-            //result 값 서버에 보낸다.
         }
         @Override
         public void onPartialResults(Bundle bundle) {
@@ -167,11 +182,9 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void onEvent(int i, Bundle bundle) {
         }
-
     };
     //미디어를 재생하는 사용자 정의 메소드
     private void playAudio() throws Exception{
-
         //외부 서버나 외부 음악파일 다운로드 시
             mediaPlayer = new MediaPlayer();
             mediaPlayer.setDataSource("https://test-audioposts.s3.ap-northeast-2.amazonaws.com/default_message.mp3");

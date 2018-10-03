@@ -5,17 +5,24 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 
 public class SplashActivity extends AppCompatActivity {
+    private Intent intent;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        try{
-            Thread.sleep(2000);
-        }catch (InterruptedException e){
-            e.printStackTrace();
+        if (SaveSharedPreferences.getNameState(SplashActivity.this).length() == 0) {
+            //call LoginActivity
+            intent = new Intent(SplashActivity.this, LoginActivity.class);
+            startActivity(intent);
+            this.finish();
+        } else {
+            //pass
+            intent = new Intent(SplashActivity.this, MainActivity.class);
+            intent.putExtra("name", SaveSharedPreferences.getNameState(this).toString());
+            intent.putExtra("userID", SaveSharedPreferences.getuserIDState(this).toString());
+            startActivity(intent);
+            this.finish();
         }
-        Intent intent = new Intent(this, LoginActivity.class);
-        startActivity(intent);
-        finish();
     }
 }
+

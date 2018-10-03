@@ -84,6 +84,7 @@ public class MainListAdapter extends BaseAdapter {
     LinearLayout buttonWrapper = null;
     ImageButton playBtn = null;
     ImageButton pauseBtn = null;
+    ImageButton translateBtn = null;
 
     // 리스트가 길어지면서 현재 화면에 보이지 않는 아이템은 converView가 null인 상태로 들어 옴
     if (convertView == null) {
@@ -94,16 +95,17 @@ public class MainListAdapter extends BaseAdapter {
 
       // view가 null일 경우 커스텀 레이아웃을 얻어 옴
       LayoutInflater inflater = (LayoutInflater) context
-          .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+              .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
       convertView = inflater.inflate(R.layout.chat_item, parent, false);
 
       wrappingLayout = (LinearLayout) convertView.findViewById(R.id.layout);
       textView = (TextView) convertView.findViewById(R.id.text);
       chatItemLayout = (RelativeLayout) convertView.findViewById(R.id.chatItemLayout);
       buttonWrapper = (LinearLayout) convertView
-          .findViewById(R.id.buttonWrapperLayout);
+              .findViewById(R.id.buttonWrapperLayout);
       playBtn = (ImageButton) convertView.findViewById(R.id.play_button);
       pauseBtn = (ImageButton) convertView.findViewById(R.id.pause_button);
+      translateBtn = (ImageButton) convertView.findViewById(R.id.translate_button);
 
       holder = new CustomHolder();
       holder.wrappingLayout = wrappingLayout;
@@ -112,6 +114,7 @@ public class MainListAdapter extends BaseAdapter {
       holder.buttonWrapper = buttonWrapper;
       holder.playBtn = playBtn;
       holder.pauseBtn = pauseBtn;
+      holder.translateBtn = translateBtn;
       convertView.setTag(holder);
     } else {
       Log.d("MainListAdapter", "convert view not null");
@@ -125,6 +128,7 @@ public class MainListAdapter extends BaseAdapter {
       buttonWrapper = holder.buttonWrapper;
       playBtn = holder.playBtn;
       pauseBtn = holder.pauseBtn;
+      translateBtn = holder.translateBtn;
     }
 
     textView.setText(m_List.get(position).msg);
@@ -166,11 +170,13 @@ public class MainListAdapter extends BaseAdapter {
       buttonWrapper.setVisibility(View.VISIBLE);
       playBtn.setVisibility(View.VISIBLE);
       pauseBtn.setVisibility(View.VISIBLE);
+      translateBtn.setVisibility(View.VISIBLE);
     } else if (m_List.get(position).type == ChatItemType.USER) {
       textView.setVisibility(View.VISIBLE);
       buttonWrapper.setVisibility(View.GONE);
       playBtn.setVisibility(View.GONE);
       pauseBtn.setVisibility(View.GONE);
+      translateBtn.setVisibility(View.GONE);
       chatItemLayout.setBackgroundResource(R.drawable.my_balloon_shape);
       wrappingLayout.setGravity(Gravity.RIGHT);
     }
@@ -207,6 +213,7 @@ public class MainListAdapter extends BaseAdapter {
     LinearLayout buttonWrapper;
     ImageButton playBtn;
     ImageButton pauseBtn;
+    ImageButton translateBtn;
   }
 
   //미디어를 재생하는 사용자 정의 메소드
@@ -215,7 +222,7 @@ public class MainListAdapter extends BaseAdapter {
     //외부 서버나 외부 음악파일 다운로드 시
     mediaPlayer = new MediaPlayer();
     mediaPlayer.setDataSource(
-        "https://test-audioposts.s3.ap-northeast-2.amazonaws.com/default_message.mp3");
+            "https://test-audioposts.s3.ap-northeast-2.amazonaws.com/default_message.mp3");
     //다운로드가 다될 때 까지 준비하는 메소드이며 준비가 다되면 그다음 단계로 진행
     mediaPlayer.prepare();
     mediaPlayer.start();
