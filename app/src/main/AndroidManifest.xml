@@ -3,11 +3,12 @@
     package="com.example.sohyunkim.project_1">
 
     <uses-permission android:name="android.permission.INTERNET"/>;
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
     <uses-permission android:name="android.permission.RECORD_AUDIO"/>;
 
     <application
         android:allowBackup="true"
-        android:icon="@mipmap/ic_launcher"
+        android:icon="@drawable/ic_launcher_new"
         android:label="On Ears"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"

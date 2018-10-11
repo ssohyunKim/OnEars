@@ -10,7 +10,7 @@ public class SplashActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        if (SaveSharedPreferences.getNameState(SplashActivity.this).length() == 0) {
+        if (SaveSharedPreferences.getuserIDState(SplashActivity.this).toString() == "") {
             //call LoginActivity
             intent = new Intent(SplashActivity.this, LoginActivity.class);
             startActivity(intent);
@@ -18,7 +18,7 @@ public class SplashActivity extends AppCompatActivity {
         } else {
             //pass
             intent = new Intent(SplashActivity.this, MainActivity.class);
-            intent.putExtra("name", SaveSharedPreferences.getNameState(this).toString());
+            //intent.putExtra("name", SaveSharedPreferences.getNameState(this).toString());
             intent.putExtra("userID", SaveSharedPreferences.getuserIDState(this).toString());
             startActivity(intent);
             this.finish();

@@ -5,6 +5,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.media.MediaPlayer;
+import android.os.AsyncTask;
+import android.renderscript.ScriptGroup;
 import android.speech.RecognitionListener;
 import android.speech.RecognizerIntent;
 import android.speech.SpeechRecognizer;
@@ -19,8 +21,21 @@ import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import com.amazonaws.mobileconnectors.apigateway.ApiClientFactory;
+import com.example.sohyunkim.onairs.model.OnEarsFirstMessageInputModel;
+import com.example.sohyunkim.onairs.model.OnEarsLoadMessageOutputModel;
+import com.example.sohyunkim.onairs.model.OnEarsLoadMessageOutputModelItem;
+import com.example.sohyunkim.onairs.model.OnEarsMessageInputModel;
+import com.example.sohyunkim.onairs.model.OnEarsMessageInputModelMessage;
+import com.example.sohyunkim.onairs.model.OnEarsMessageOutputModel;
+import com.example.sohyunkim.onairs.model.OnEarsMessageOutputModelResponse;
 import com.example.sohyunkim.project_1.R;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.ArrayList;
+import java.util.concurrent.ExecutionException;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -34,8 +49,8 @@ public class MainActivity extends AppCompatActivity {
     private int playbackPosition = 0;
     Button button2;
     private Context appContext;
+    String userID, name, msg, audioURL;
 
-    private Intent intent1;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -43,18 +58,26 @@ public class MainActivity extends AppCompatActivity {
 
         intent = getIntent();
 
-        String userID = null;
-        SaveSharedPreferences.saveUserIDState(MainActivity.this, userID);
+     /*   String userID = null;
+        SaveSharedPreferences.saveUserIDState(MainActivity.this, userID);*/
+        if(SaveSharedPreferences.getSharedPreferences(MainActivity.this).toString()==""){
+            Intent intent1 = new Intent(getApplicationContext(), LoginActivity.class);
+            startActivity(intent1);
+        }
+        userID = intent.getStringExtra("userID");
+        name = intent.getStringExtra("name");
+        msg =  intent.getStringExtra("msg");
+        audioURL = intent.getStringExtra("audioURL");
 
-        String name = intent.getStringExtra("name");
-        String age = intent.getStringExtra("age");
-        String gender = intent.getStringExtra("gender");
-        String concern = intent.getStringExtra("concern");
 
-        if(name.equals(""))
-            Toast.makeText(this,"이름이 없습니다!", Toast.LENGTH_SHORT).show();
+        Toast.makeText(this,name+"님이 관심있는 카테고리의 뉴스를 보여드릴게요. ", Toast.LENGTH_LONG).show();
+
+        if(userID.equals(""))
+            Toast.makeText(this,"no data found", Toast.LENGTH_SHORT).show();
         else
-            Toast.makeText(this, "환영합니다 "+name+" 님",Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "user: "+userID,Toast.LENGTH_SHORT).show();
+
+
 
 
         appContext = getApplicationContext();
@@ -66,37 +89,10 @@ public class MainActivity extends AppCompatActivity {
                 Toast.makeText(getApplicationContext(), "Webi_GetPreviousMessages",Toast.LENGTH_LONG).show();
         }
         });
-/*        //오디오 버튼
-        ImageButton start = (ImageButton)findViewById(R.id.play_button);
-        ImageButton pause = (ImageButton)findViewById(R.id.pause_button);
-        start.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View arg0) {
-               try{
-                   if(mediaPlayer!=null){
-                       mediaPlayer.stop();
-                       mediaPlayer = null;
-                   }
-                   playAudio();
-               }catch (Exception e){
-                   e.printStackTrace();
-               }
-            }
-        });
-        pause.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                    if(mediaPlayer != null){
-                        //현재 재생위치 저장
-                        playbackPosition = mediaPlayer.getCurrentPosition();
-                        mediaPlayer.pause();
-                    }
-            }
-        });*/
-
 
         // 커스텀 어댑터 생성
         m_Adapter = new MainListAdapter();
+
 
         // Xml에서 추가한 ListView 연결
         m_ListView = (ListView) findViewById(R.id.listView1);
@@ -104,7 +100,8 @@ public class MainActivity extends AppCompatActivity {
         // ListView에 어댑터 연결
         m_ListView.setAdapter(m_Adapter);
 
-        m_Adapter.add("뉴스, 메일, 핫 이슈 중에서 원하시는 메뉴를 말씀해 주세요. ",ChatItemType.APP_TEXT_BUTTON);
+
+        m_Adapter.add(msg, ChatItemType.APP_TEXT_BUTTON);
         //m_Adapter.add("",ChatItemType.USER);
 
         if (ContextCompat.checkSelfPermission(this,
@@ -135,6 +132,29 @@ public class MainActivity extends AppCompatActivity {
                 mRecognizer.startListening(intent);
             }
         });
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+
+        OnEarsMessageInputModel onEarsMessageInputModel = new OnEarsMessageInputModel();
+        onEarsMessageInputModel.setUserId(userID);
+        onEarsMessageInputModel.setMessage();
+
+        ChatbotPostAsyncTask chatbotPostAsyncTask = new ChatbotPostAsyncTask();
+        OnEarsMessageOutputModel outputModel = null;
+
+
+        try {
+            outputModel = chatbotPostAsyncTask.execute(onEarsMessageInputModel).get();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        }
+        Log.d("LoginActivityHTTP", outputModel.getResponse().getMessage().getData());
+
     }
 
     /*    음성인식     */
@@ -184,10 +204,10 @@ public class MainActivity extends AppCompatActivity {
         }
     };
     //미디어를 재생하는 사용자 정의 메소드
-    private void playAudio() throws Exception{
+    public void playAudio(String audioURL) throws Exception{
         //외부 서버나 외부 음악파일 다운로드 시
             mediaPlayer = new MediaPlayer();
-            mediaPlayer.setDataSource("https://test-audioposts.s3.ap-northeast-2.amazonaws.com/default_message.mp3");
+            mediaPlayer.setDataSource(audioURL);
             //다운로드가 다될 때 까지 준비하는 메소드이며 준비가 다되면 그다음 단계로 진행
             mediaPlayer.prepare();
             mediaPlayer.start();

@@ -1,8 +1,11 @@
 package com.example.sohyunkim.onairs;
 
+import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Color;
 import android.media.MediaPlayer;
+import android.os.Bundle;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -25,8 +28,19 @@ public class MainListAdapter extends BaseAdapter {
   private final int MY_PERMISSIONS_RECORD_AUDIO = 1;
   private MediaPlayer mediaPlayer;
   private int playbackPosition = 0;
+  private String audioURL;
 
-  public class ListContents {
+
+  public class SetPlayAudioURL{
+      String audioURL="";
+
+      SetPlayAudioURL(String audioURL){
+          this.audioURL = audioURL;
+      }
+
+  }
+
+   public class ListContents {
 
     String msg;
     ChatItemType type;
@@ -44,6 +58,7 @@ public class MainListAdapter extends BaseAdapter {
 
     m_List = new ArrayList<ListContents>();
   }
+
 
   // 외부에서 아이템 추가 요청 시 사용
   public void add(String msg, ChatItemType type) {
@@ -141,7 +156,7 @@ public class MainListAdapter extends BaseAdapter {
             mediaPlayer.stop();
             mediaPlayer = null;
           }
-          playAudio();
+          playAudio(audioURL);
         } catch (Exception e) {
           e.printStackTrace();
         }
@@ -217,12 +232,11 @@ public class MainListAdapter extends BaseAdapter {
   }
 
   //미디어를 재생하는 사용자 정의 메소드
-  private void playAudio() throws Exception {
+  public void playAudio(String audioURL) throws Exception {
 
     //외부 서버나 외부 음악파일 다운로드 시
     mediaPlayer = new MediaPlayer();
-    mediaPlayer.setDataSource(
-            "https://test-audioposts.s3.ap-northeast-2.amazonaws.com/default_message.mp3");
+    mediaPlayer.setDataSource(audioURL);
     //다운로드가 다될 때 까지 준비하는 메소드이며 준비가 다되면 그다음 단계로 진행
     mediaPlayer.prepare();
     mediaPlayer.start();
