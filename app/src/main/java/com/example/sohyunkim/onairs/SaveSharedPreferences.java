@@ -6,9 +6,20 @@ import android.preference.PreferenceManager;
 
 public class SaveSharedPreferences {
     static final String userID = "userID";
+    static final String name = "name";
 
     static SharedPreferences getSharedPreferences(Context context){
         return PreferenceManager.getDefaultSharedPreferences(context);
+    }
+    //save user name state
+    public static void saveNameState(Context context, String name){
+        SharedPreferences.Editor editor = getSharedPreferences(context).edit();
+        editor.putString("name", name);
+        editor.commit();
+    }
+    //get user name state
+    public static String getNameState(Context context){
+        return getSharedPreferences(context).getString(name,"");
     }
     //save userID state
     public static void saveUserIDState(Context context, String userID){

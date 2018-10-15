@@ -20,6 +20,7 @@ public class SplashActivity extends AppCompatActivity {
             intent = new Intent(SplashActivity.this, MainActivity.class);
             //intent.putExtra("name", SaveSharedPreferences.getNameState(this).toString());
             intent.putExtra("userID", SaveSharedPreferences.getuserIDState(this).toString());
+            intent.putExtra("name",SaveSharedPreferences.getNameState(this).toString());
             startActivity(intent);
             this.finish();
         }

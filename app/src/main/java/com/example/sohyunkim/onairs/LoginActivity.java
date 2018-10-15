@@ -73,46 +73,48 @@ public class LoginActivity extends AppCompatActivity{
                 String age = ageInput.getText().toString();
                 String concern = rd1.getText().toString();
 
-                OnEarsFirstMessageInputModel onEarsFirstMessageInputModel = new OnEarsFirstMessageInputModel();
-                onEarsFirstMessageInputModel.setUserId(null);
-                onEarsFirstMessageInputModel.setAge(age);
-                onEarsFirstMessageInputModel.setGender(gender);
-                onEarsFirstMessageInputModel.setConcern(concern);
+//                OnEarsFirstMessageInputModel onEarsFirstMessageInputModel = new OnEarsFirstMessageInputModel();
+//                onEarsFirstMessageInputModel.setUserId(null);
+//                onEarsFirstMessageInputModel.setAge(age);
+//                onEarsFirstMessageInputModel.setGender(gender);
+//                onEarsFirstMessageInputModel.setConcern(concern);
 
-                ConnectPostAsyncTask connectPostAsyncTask = new ConnectPostAsyncTask();
-                OnEarsMessageOutputModel outputModel = null;
+//                ConnectPostAsyncTask connectPostAsyncTask = new ConnectPostAsyncTask();
+//                OnEarsMessageOutputModel outputModel = null;
 
-                try {
-                    outputModel = connectPostAsyncTask.execute(onEarsFirstMessageInputModel).get();
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                } catch (ExecutionException e) {
-                    e.printStackTrace();
-                }
-                Log.d("LoginActivityHTTP", outputModel.getUserId());
-                Log.d("LoginActivityHTTP1", outputModel.getResponse().getMessage().getData());
-                Log.d("LoginActivityHTTP2", outputModel.getResponse().getMessage().getDate());
-                Log.d("LoginActivityHTTP3", outputModel.getResponse().getMessage().getAudioUrl());
-                Log.d("LoginActivityHTTP4",outputModel.getResponse().getState().getDepth().toString());
-                Log.d("LoginActivityHTTP5",outputModel.getResponse().getState().getMainCategory().toString());
-                Log.d("LoginActivityHTTP6",outputModel.getResponse().getState().getSubCategory().toString());
-                Log.d("LoginActivityHTTP7",outputModel.getResponse().getState().getTitle().toString());
-                Log.d("LoginActivityHTTP8",outputModel.getResponse().getState().getUrl().toString());
-
-
+//                try {
+//                    outputModel = connectPostAsyncTask.execute(onEarsFirstMessageInputModel).get();
+//                } catch (InterruptedException e) {
+//                    e.printStackTrace();
+//                } catch (ExecutionException e) {
+//                    e.printStackTrace();
+//                }
+//                Log.d("LoginActivityHTTP", outputModel.getUserId());
+//                Log.d("LoginActivityHTTP1", outputModel.getResponse().getMessage().getData());
+//                Log.d("LoginActivityHTTP2", outputModel.getResponse().getMessage().getDate());
+//                Log.d("LoginActivityHTTP3", outputModel.getResponse().getMessage().getAudioUrl());
+//                Log.d("LoginActivityHTTP4",outputModel.getResponse().getState().getDepth().toString());
+//                Log.d("LoginActivityHTTP5",outputModel.getResponse().getState().getMainCategory().toString());
+//                Log.d("LoginActivityHTTP6",outputModel.getResponse().getState().getSubCategory().toString());
+//                Log.d("LoginActivityHTTP7",outputModel.getResponse().getState().getTitle().toString());
+//                Log.d("LoginActivityHTTP8",outputModel.getResponse().getState().getUrl().toString());
 
 
-                String msg = outputModel.getResponse().getMessage().getData();
-                String audioURL = outputModel.getResponse().getMessage().getAudioUrl();
-                userID = outputModel.getUserId().toString();
-                //state도 필요함
-                SaveSharedPreferences.saveUserIDState(LoginActivity.this, userID);
+
+
+//                String msg = outputModel.getResponse().getMessage().getData();
+//                String audioURL = outputModel.getResponse().getMessage().getAudioUrl();
+//                userID = outputModel.getUserId().toString();
+//                //state도 필요함
 
                 Intent intent = new Intent(getApplicationContext(), MainActivity.class);
-                intent.putExtra("userID",userID);
+//                intent.putExtra("userID",userID);
                 intent.putExtra("name",name);
-                intent.putExtra("msg",msg);
-                intent.putExtra("audioURL",audioURL);
+                intent.putExtra("age",age);
+                intent.putExtra("concern",concern);
+                intent.putExtra("gender",gender);
+//                intent.putExtra("msg",msg);
+//                intent.putExtra("audioURL",audioURL);
 
                 startActivity(intent);
                 finish();
