@@ -21,16 +21,14 @@ import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.Toast;
 
-import com.amazonaws.mobileconnectors.apigateway.ApiClientFactory;
-import com.example.sohyunkim.onairs.model.OnEarsFirstMessageInputModel;
-import com.example.sohyunkim.onairs.model.OnEarsLoadMessageOutputModel;
-import com.example.sohyunkim.onairs.model.OnEarsLoadMessageOutputModelItem;
-import com.example.sohyunkim.onairs.model.OnEarsMessageInputModel;
-import com.example.sohyunkim.onairs.model.OnEarsMessageInputModelMessage;
-import com.example.sohyunkim.onairs.model.OnEarsMessageInputModelState;
-import com.example.sohyunkim.onairs.model.OnEarsMessageOutputModel;
-import com.example.sohyunkim.onairs.model.OnEarsMessageOutputModelResponse;
-import com.example.sohyunkim.onairs.model.OnEarsMessageOutputModelResponseState;
+
+import com.example.sohyunkim.onairs.model.Input;
+import com.example.sohyunkim.onairs.model.InputMessage;
+import com.example.sohyunkim.onairs.model.Message;
+import com.example.sohyunkim.onairs.model.Output;
+import com.example.sohyunkim.onairs.model.State;
+import com.example.sohyunkim.onairs.model.UserIdInput;
+import com.example.sohyunkim.onairs.model.UserInput;
 import com.example.sohyunkim.project_1.R;
 
 import org.json.JSONException;
@@ -57,46 +55,78 @@ public class MainActivity extends AppCompatActivity {
     // api을 호출을 위해서 추가한 내용
     private ConnectPostAsyncTask connectPostAsyncTask;
     private ChatbotPostAsyncTask chatbotPostAsyncTask;
-    private OnEarsFirstMessageInputModel firstInputModel;
-    private OnEarsMessageInputModel inputModel;
-    private OnEarsMessageOutputModel outputModel;
-
-//    private OnEarsMessageInputModelState inputState = new OnEarsMessageInputModelState();
-//    private OnEarsMessageOutputModelResponseState outputState;
-//    private OnEarsMessageInputModelMessage inputMessage;
+    private UserInput userInput;
+    private UserIdInput userIdInput;
+    private Input input;
+    private State state;
+    private Message message;
+    // Messages
+    private ArrayList<Message> messages;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        userInput = new UserInput();
+        userIdInput = new UserIdInput();
+        input = new Input();
+        messages = new ArrayList<Message>();
+        connectPostAsyncTask = new ConnectPostAsyncTask(getApplicationContext(), new OnEventListener<Output>() {
+            @Override
+            public void onSuccess(Output result) {
+                // connect 요청 성공시 Callback
+                if(userID == null){
+                    userID = result.getUserId();
+                    SaveSharedPreferences.saveUserIDState(MainActivity.this, userID);
+                    SaveSharedPreferences.saveNameState(MainActivity.this, name);
+                }
+                message = result.getResponse().getMessage();
+                messages.add(message);
+                state = result.getResponse().getState();
+                input.setState(state);
+                input.setUserId(userID);
+
+                // View에 메세지 추가
+                // ~
+                // audio 실행
+            }
+            @Override
+            public void onFailure(Exception e) {
+                e.printStackTrace();
+            }
+        });
+        chatbotPostAsyncTask = new ChatbotPostAsyncTask(getApplicationContext(), new OnEventListener<Output>() {
+            @Override
+            public void onSuccess(Output result) {
+                // chatbot 요청 성공시 Callback
+                message = result.getResponse().getMessage();
+                messages.add(message);
+                state = result.getResponse().getState();
+                input.setState(state);
+
+                // View에 메세지 추가
+                // ~
+                // audio 실행
+            }
+            @Override
+            public void onFailure(Exception e) {
+                e.printStackTrace();
+            }
+        });
 
         intent = getIntent();
-
-        // api 호출하는 클래스 생성
-        connectPostAsyncTask = new ConnectPostAsyncTask();
-        chatbotPostAsyncTask = new ChatbotPostAsyncTask();
-        firstInputModel = new OnEarsFirstMessageInputModel();
-        inputModel = new OnEarsMessageInputModel();
-        outputModel = new OnEarsMessageOutputModel();
-
-     /*   String userID = null;
-        SaveSharedPreferences.saveUserIDState(MainActivity.this, userID);*/
-//        if(SaveSharedPreferences.getSharedPreferences(MainActivity.this).toString()==""){
-//            Intent intent1 = new Intent(getApplicationContext(), LoginActivity.class);
-//            startActivity(intent1);
-//        }
         userID = intent.getStringExtra("userID");
         name = intent.getStringExtra("name");
         age = intent.getStringExtra("age");
         concern = intent.getStringExtra("concern");
         gender = intent.getStringExtra("gender");
 
-        if(userID == "") {
-            firstInputModel.setAge(age);
-            firstInputModel.setGender(gender);
-            firstInputModel.setConcern(concern);
+        if(userID == null) {
+            userInput.setAge(age);
+            userInput.setGender(gender);
+            userInput.setConcern(concern);
         }
-        firstInputModel.setUserId(userID);
+        userInput.setUserId(userID);
 
 //        msg =  intent.getStringExtra("msg");
 //        audioURL = intent.getStringExtra("audioURL");
@@ -158,73 +188,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
-        try {
-            outputModel = connectPostAsyncTask.execute(firstInputModel).get();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        } catch (ExecutionException e) {
-            e.printStackTrace();
-        }
-        OnEarsMessageInputModelState tmp = new OnEarsMessageInputModelState();
-        tmp.setUrl("");
-        tmp.setTitle("");
-        tmp.setSubCategory("");
-        tmp.setMainCategory("");
-        tmp.setDepth(0);
-        inputModel.setState(tmp);
-
-        Log.d("output model",outputModel.getUserId());
-        Log.d("output model",outputModel.getResponse().getMessage().getData());
-//        Log.d("output model",outputModel.getResponse().getState().getTitle());
-        Log.d("output model",outputModel.getResponse().getState().getMainCategory());
-        Log.d("output model",outputModel.getResponse().getState().getSubCategory());
-//        Log.d("output model",outputModel.getResponse().getState().getUrl());
-
-
-
-//        Log.d("output user id",outputModel.getUserId());
-//        convertStateModel(inputModel,outputModel);
-//        Log.d("inputModel",inputModel.getState().getMainCategory());
-
-        if(userID == ""){
-            SaveSharedPreferences.saveUserIDState(MainActivity.this, outputModel.getUserId());
-            SaveSharedPreferences.saveNameState(MainActivity.this, name);
-        }
-//        OnEarsMessageInputModel onEarsMessageInputModel = new OnEarsMessageInputModel();
-//        onEarsMessageInputModel.setUserId(userID);
-//
-//        // (connect  POST 요청 다음) chatbot POST 보낼때
-//        // inputMessage 작성
-//        inputMessage.setData("유저가입력한내용");
-//        onEarsMessageInputModel.setMessage(inputMessage);
-//        // outputState -> inputState
-//        convertStateModel(inputState,outputState);
-//        onEarsMessageInputModel.setState(inputState);
-//
-//
-//        OnEarsMessageOutputModel outputModel = null;
-//
-//        // chatbot POST 요청 보낼때
-//        // inputMessage 작성
-//        inputMessage.setData("유저가입력한내용");
-//        onEarsMessageInputModel.setMessage(inputMessage);
-//        outputState = outputModel.getResponse().getState();
-//        convertStateModel(inputState,outputState);
-//
-//
-//
-//
-//
-//
-//        try {
-//            outputModel = chatbotPostAsyncTask.execute(onEarsMessageInputModel).get();
-//        } catch (InterruptedException e) {
-//            e.printStackTrace();
-//        } catch (ExecutionException e) {
-//            e.printStackTrace();
-//        }
-//        Log.d("LoginActivityHTTP", outputModel.getResponse().getMessage().getData());
-
+        connectPostAsyncTask.execute(userInput);
     }
 
     /*    음성인식     */
@@ -258,6 +222,10 @@ public class MainActivity extends AppCompatActivity {
             mResult.toArray(result);
             text = result[0];
 
+            // api 호출
+            setInputUsingString(input,text);
+            chatbotPostAsyncTask.execute(input);
+
             Log.d("MainActivity","voice result :"+result[0]);
 
             m_Adapter.add(text,ChatItemType.USER);
@@ -282,18 +250,11 @@ public class MainActivity extends AppCompatActivity {
             mediaPlayer.prepare();
             mediaPlayer.start();
     }
-
-    /* AWS Model Method */
-    public void initInputState(OnEarsMessageInputModelState inputState){
-        inputState.setDepth(0);
-        inputState.setMainCategory("news");
-    }
-    public void convertStateModel(OnEarsMessageInputModel im, OnEarsMessageOutputModel om) {
-        im.getState().setDepth(om.getResponse().getState().getDepth());
-        im.getState().setMainCategory(om.getResponse().getState().getMainCategory());
-        im.getState().setSubCategory(om.getResponse().getState().getSubCategory());
-//        im.getState().setTitle(om.getResponse().getState().getTitle());
-//        im.getState().setUrl(om.getResponse().getState().getUrl());
+    // input set method
+    public void setInputUsingString(Input input, String text){
+        InputMessage inputMessage = new InputMessage();
+        inputMessage.setData(text);
+        input.setMessage(inputMessage);
     }
 }
 
