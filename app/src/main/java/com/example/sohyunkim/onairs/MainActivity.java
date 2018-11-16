@@ -12,15 +12,19 @@ import android.speech.RecognizerIntent;
 import android.speech.SpeechRecognizer;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.Toast;
-
 
 import com.example.sohyunkim.onairs.model.Input;
 import com.example.sohyunkim.onairs.model.InputMessage;
@@ -39,6 +43,7 @@ import java.util.concurrent.ExecutionException;
 
 public class MainActivity extends AppCompatActivity {
 
+    Toolbar myToolbar;
     Intent intent;
     SpeechRecognizer mRecognizer;
     ListView m_ListView;
@@ -48,6 +53,7 @@ public class MainActivity extends AppCompatActivity {
     private MediaPlayer mediaPlayer;
     private int playbackPosition = 0;
     Button button2;
+    ImageButton setting;
     private Context appContext;
     // Splash or login 에서 받아오는 값
     String userID, name, age, concern, gender;
@@ -58,61 +64,26 @@ public class MainActivity extends AppCompatActivity {
     private UserInput userInput;
     private UserIdInput userIdInput;
     private Input input;
+    private InputMessage inputMessage;
     private State state;
     private Message message;
     // Messages
     private ArrayList<Message> messages;
+    public String getAudioURL() {
+        return AudioURL;
+    }
+    public String AudioURL;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
         userInput = new UserInput();
         userIdInput = new UserIdInput();
         input = new Input();
+        inputMessage = new InputMessage();
         messages = new ArrayList<Message>();
-        connectPostAsyncTask = new ConnectPostAsyncTask(getApplicationContext(), new OnEventListener<Output>() {
-            @Override
-            public void onSuccess(Output result) {
-                // connect 요청 성공시 Callback
-                if(userID == null){
-                    userID = result.getUserId();
-                    SaveSharedPreferences.saveUserIDState(MainActivity.this, userID);
-                    SaveSharedPreferences.saveNameState(MainActivity.this, name);
-                }
-                message = result.getResponse().getMessage();
-                messages.add(message);
-                state = result.getResponse().getState();
-                input.setState(state);
-                input.setUserId(userID);
-
-                // View에 메세지 추가
-                // ~
-                // audio 실행
-            }
-            @Override
-            public void onFailure(Exception e) {
-                e.printStackTrace();
-            }
-        });
-        chatbotPostAsyncTask = new ChatbotPostAsyncTask(getApplicationContext(), new OnEventListener<Output>() {
-            @Override
-            public void onSuccess(Output result) {
-                // chatbot 요청 성공시 Callback
-                message = result.getResponse().getMessage();
-                messages.add(message);
-                state = result.getResponse().getState();
-                input.setState(state);
-
-                // View에 메세지 추가
-                // ~
-                // audio 실행
-            }
-            @Override
-            public void onFailure(Exception e) {
-                e.printStackTrace();
-            }
-        });
 
         intent = getIntent();
         userID = intent.getStringExtra("userID");
@@ -128,9 +99,61 @@ public class MainActivity extends AppCompatActivity {
         }
         userInput.setUserId(userID);
 
-//        msg =  intent.getStringExtra("msg");
-//        audioURL = intent.getStringExtra("audioURL");
-        // audioURL => outputModel.getResponse().getMessage().getAudioUrl();
+        Toast.makeText(getApplicationContext(), "환영합니다 "+name+" 님!\n잠시만 기다려주세요 :)",Toast.LENGTH_LONG).show();
+
+        connectPostAsyncTask = new ConnectPostAsyncTask(getApplicationContext(), new OnEventListener<Output>() {
+            @Override
+            public void onSuccess(Output result) {
+                // connect 요청 성공시 Callback
+                if(userID == null){
+                    userID = result.getUserId();
+                    SaveSharedPreferences.saveUserIDState(MainActivity.this, userID);
+                    SaveSharedPreferences.saveNameState(MainActivity.this, name);
+                }
+                message = result.getResponse().getMessage();
+                messages.add(message);
+                state = result.getResponse().getState();
+                input.setState(state);
+
+                m_Adapter.add(name+" 님의 관심 카테고리 뉴스를 보여드릴게요.",ChatItemType.TEXT);
+                // View에 메세지 추가
+                m_Adapter.add(message.getData(),ChatItemType.APP_TEXT_BUTTON);
+                m_Adapter.add("자세한 내용을 들으시려면 '확인', 다음 뉴스를 보시려면 '다음'이라고 말씀해주세요.",ChatItemType.TEXT);
+                m_Adapter.notifyDataSetChanged();
+
+                input.setUserId(userID);
+                // audio 실행
+                AudioURL = message.getAudioUrl().toString();
+
+            }
+            @Override
+            public void onFailure(Exception e) {
+                e.printStackTrace();
+            }
+        });
+
+        connectPostAsyncTask.execute(userInput);
+
+        chatbotPostAsyncTask = new ChatbotPostAsyncTask(getApplicationContext(), new OnEventListener<Output>() {
+            @Override
+            public void onSuccess(Output result) {
+                // chatbot 요청 성공시 Callback
+                message = result.getResponse().getMessage();
+                messages.add(message);
+                state = result.getResponse().getState();
+                input.setState(state);
+
+                // View에 메세지 추가
+                m_Adapter.add(message.getDocumentData().getText(),ChatItemType.APP_TEXT_BUTTON);
+                m_Adapter.notifyDataSetChanged();
+                // audio 실행
+            }
+            @Override
+            public void onFailure(Exception e) {
+                e.printStackTrace();
+            }
+        });
+        //chatbotPostAsyncTask.execute(input);
 
         appContext = getApplicationContext();
 
@@ -141,10 +164,17 @@ public class MainActivity extends AppCompatActivity {
                 Toast.makeText(getApplicationContext(), "Webi_GetPreviousMessages",Toast.LENGTH_LONG).show();
         }
         });
+        setting = (ImageButton)findViewById(R.id.setting);
+        setting.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(getApplicationContext(), LoginActivity.class);
+                startActivity(intent);
+            }
+        });
 
         // 커스텀 어댑터 생성
         m_Adapter = new MainListAdapter();
-
 
         // Xml에서 추가한 ListView 연결
         m_ListView = (ListView) findViewById(R.id.listView1);
@@ -152,8 +182,6 @@ public class MainActivity extends AppCompatActivity {
         // ListView에 어댑터 연결
         m_ListView.setAdapter(m_Adapter);
 
-//        m_Adapter.add(outputModel.getResponse().getMessage().getData(), ChatItemType.APP_TEXT_BUTTON);
-        //m_Adapter.add("",ChatItemType.USER);
 
         if (ContextCompat.checkSelfPermission(this,
                 Manifest.permission.RECORD_AUDIO)
@@ -188,11 +216,10 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
-        connectPostAsyncTask.execute(userInput);
     }
 
     /*    음성인식     */
-    private RecognitionListener recognitionListener = new RecognitionListener() {
+    public RecognitionListener recognitionListener = new RecognitionListener() {
         @Override
         public void onReadyForSpeech(Bundle bundle) {
         }
@@ -221,12 +248,15 @@ public class MainActivity extends AppCompatActivity {
             String[] result = new String[mResult.size()];
             mResult.toArray(result);
             text = result[0];
-
             // api 호출
-            setInputUsingString(input,text);
+            setInputUsingString(input, inputMessage ,text);
             chatbotPostAsyncTask.execute(input);
-
             Log.d("MainActivity","voice result :"+result[0]);
+            Log.d("chatbotinput1",input.getMessage().getData());
+            Log.d("chatbotinput2",input.getMessage().getData().toString());
+            Log.d("chatbotinput3",input.getState().getDepth().toString());
+            Log.d("chatbotinput4",input.getUserId().toString());
+
 
             m_Adapter.add(text,ChatItemType.USER);
             m_Adapter.notifyDataSetChanged();
@@ -251,8 +281,7 @@ public class MainActivity extends AppCompatActivity {
             mediaPlayer.start();
     }
     // input set method
-    public void setInputUsingString(Input input, String text){
-        InputMessage inputMessage = new InputMessage();
+    public void setInputUsingString(Input input,InputMessage inputMessage, String text){
         inputMessage.setData(text);
         input.setMessage(inputMessage);
     }

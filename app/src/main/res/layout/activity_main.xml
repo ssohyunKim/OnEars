@@ -5,8 +5,6 @@
     android:layout_height="fill_parent"
     android:background="@color/whitesmoke">
 
-    //android:layout_height="?attr/actionBarSize"
-
     <LinearLayout
         android:id="@+id/lin_miniplayer"
         android:layout_width="match_parent"
@@ -14,12 +12,6 @@
         android:gravity="center_vertical"
         android:orientation="horizontal">
 
-<!--        <ImageButton
-            android:id="@+id/play_button"
-            android:layout_width="125dp"
-            android:layout_height="40dp"
-            android:background="?attr/selectableItemBackground"
-            android:src="@drawable/play" />-->
 
         <Button
             android:id="@+id/button2"
@@ -31,12 +23,13 @@
             android:text="더보기"
             android:textColor="@color/midnightblue" />
 
-<!--        <ImageButton
-            android:id="@+id/pause_button"
-            android:layout_width="130dp"
+        <ImageButton
+            android:id="@+id/setting"
+            android:layout_width="40dp"
             android:layout_height="40dp"
-            android:background="?attr/selectableItemBackground"
-            android:src="@drawable/pause" />-->
+            android:layout_gravity="right"
+            android:src="@drawable/ic_settings_black_24dp"/>
+
     </LinearLayout>
 
     <LinearLayout
@@ -76,7 +69,7 @@
             android:layout_weight="1"
             android:background="@color/whitesmoke"
             android:scaleType="fitXY"
-            android:src="@drawable/microphone_b" />
+            android:src="@drawable/microphone" />
 
     </LinearLayout>
 </LinearLayout>

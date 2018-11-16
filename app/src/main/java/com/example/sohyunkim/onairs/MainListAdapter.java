@@ -25,20 +25,11 @@ import java.util.ArrayList;
 
 public class MainListAdapter extends BaseAdapter {
 
+  Context context;
   private final int MY_PERMISSIONS_RECORD_AUDIO = 1;
   private MediaPlayer mediaPlayer;
   private int playbackPosition = 0;
-  private String audioURL;
-
-
-  public class SetPlayAudioURL{
-      String audioURL="";
-
-      SetPlayAudioURL(String audioURL){
-          this.audioURL = audioURL;
-      }
-
-  }
+  public String audioURL;
 
    public class ListContents {
 
@@ -103,10 +94,10 @@ public class MainListAdapter extends BaseAdapter {
 
     // 리스트가 길어지면서 현재 화면에 보이지 않는 아이템은 converView가 null인 상태로 들어 옴
     if (convertView == null) {
-      Log.d("MainListAdapter", "convert view null");
-      Log.d("MainListAdapter", "position : " + position);
-      Log.d("MainListAdapter", "msg : " + m_List.get(position).msg);
-      Log.d("MainListAdapter", "type : " + m_List.get(position).type);
+      //Log.d("MainListAdapter", "convert view null");
+      //Log.d("MainListAdapter", "position : " + position);
+      //Log.d("MainListAdapter", "msg : " + m_List.get(position).msg);
+      //Log.d("MainListAdapter", "type : " + m_List.get(position).type);
 
       // view가 null일 경우 커스텀 레이아웃을 얻어 옴
       LayoutInflater inflater = (LayoutInflater) context
@@ -132,10 +123,10 @@ public class MainListAdapter extends BaseAdapter {
       holder.translateBtn = translateBtn;
       convertView.setTag(holder);
     } else {
-      Log.d("MainListAdapter", "convert view not null");
-      Log.d("MainListAdapter", "position : " + position);
-      Log.d("MainListAdapter", "msg : " + m_List.get(position).msg);
-      Log.d("MainListAdapter", "type : " + m_List.get(position).type);
+      //Log.d("MainListAdapter", "convert view not null");
+      //Log.d("MainListAdapter", "position : " + position);
+      //Log.d("MainListAdapter", "msg : " + m_List.get(position).msg);
+      //Log.d("MainListAdapter", "type : " + m_List.get(position).type);
       holder = (CustomHolder) convertView.getTag();
       wrappingLayout = holder.wrappingLayout;
       textView = holder.textView;
@@ -155,6 +146,7 @@ public class MainListAdapter extends BaseAdapter {
           if (mediaPlayer != null) {
             mediaPlayer.stop();
             mediaPlayer = null;
+            //(MainActivity)MainActivity.AudioURL.toString();
           }
           playAudio(audioURL);
         } catch (Exception e) {
@@ -162,6 +154,7 @@ public class MainListAdapter extends BaseAdapter {
         }
       }
     });
+
 
     pauseBtn.setOnClickListener(new View.OnClickListener() {
       @Override
@@ -173,14 +166,29 @@ public class MainListAdapter extends BaseAdapter {
         }
       }
     });
+    translateBtn.setOnClickListener(new View.OnClickListener() {
+      @Override
+      public void onClick(View arg0) {
+        try {
+          if (mediaPlayer != null) {
+            mediaPlayer.stop();
+            mediaPlayer = null;
+            //(MainActivity)MainActivity.AudioURL.toString();
+          }
+          playAudio(audioURL);
+        } catch (Exception e) {
+          e.printStackTrace();
+        }
+      }
+    });
 
     if (m_List.get(position).type == ChatItemType.APP_TEXT_BUTTON) {
-      Log.d("MainListAdapter", "hello my pos is : " + position);
-      Log.d("MainListAdapter", "my text is : " + textView.getText());
-      Log.d("MainListAdapter", "my text is : " + textView.getId());
-      Log.d("MainListAdapter", "my layout is : " + wrappingLayout.getId());
+      //Log.d("MainListAdapter", "hello my pos is : " + position);
+      //Log.d("MainListAdapter", "my text is : " + textView.getText());
+      //Log.d("MainListAdapter", "my text is : " + textView.getId());
+      //Log.d("MainListAdapter", "my layout is : " + wrappingLayout.getId());
       textView.setVisibility(View.VISIBLE);
-      chatItemLayout.setBackgroundResource(R.drawable.other_balloon_shape);
+      chatItemLayout.setBackgroundResource(R.drawable.new_other_bubble);
       wrappingLayout.setGravity(Gravity.LEFT);
       buttonWrapper.setVisibility(View.VISIBLE);
       playBtn.setVisibility(View.VISIBLE);
@@ -192,11 +200,19 @@ public class MainListAdapter extends BaseAdapter {
       playBtn.setVisibility(View.GONE);
       pauseBtn.setVisibility(View.GONE);
       translateBtn.setVisibility(View.GONE);
-      chatItemLayout.setBackgroundResource(R.drawable.my_balloon_shape);
+      chatItemLayout.setBackgroundResource(R.drawable.new_my_bubble);
       wrappingLayout.setGravity(Gravity.RIGHT);
+    } else if(m_List.get(position).type == ChatItemType.TEXT){
+      textView.setVisibility(View.VISIBLE);
+      wrappingLayout.setGravity(Gravity.LEFT);
+      buttonWrapper.setVisibility(View.GONE);
+      playBtn.setVisibility(View.GONE);
+      pauseBtn.setVisibility(View.GONE);
+      translateBtn.setVisibility(View.GONE);
+      chatItemLayout.setBackgroundResource(R.drawable.new_other_bubble);
     }
 
-    // 리스트 아이템을 터치 했을 때 이벤트 발생
+/*    // 리스트 아이템을 터치 했을 때 이벤트 발생
     convertView.setOnClickListener(new OnClickListener() {
 
       @Override
@@ -215,7 +231,7 @@ public class MainListAdapter extends BaseAdapter {
         Toast.makeText(context, "리스트 롱 클릭 : " + m_List.get(pos), Toast.LENGTH_SHORT).show();
         return true;
       }
-    });
+    });*/
 
     return convertView;
   }
