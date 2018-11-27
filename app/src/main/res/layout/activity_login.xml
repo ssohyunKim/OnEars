@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
+<ScrollView
     xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:fillViewport="true">
+<LinearLayout
     android:layout_height="match_parent"
     android:layout_width="match_parent"
     android:layout_marginTop="10dp"
@@ -70,8 +74,6 @@
             android:layout_marginBottom="5dp"
             android:hint="나이"
             android:textAppearance="?android:attr/textAppearanceLarge"/>
-
-
     </LinearLayout>
 
     <TextView
@@ -126,7 +128,6 @@
             android:text="기술" />
     </RadioGroup>
 
-
     <Button
         android:id="@+id/sendButton"
         android:layout_width="200dp"
@@ -139,3 +140,4 @@
         android:textColor="@android:color/white" />
 
 </LinearLayout>
+</ScrollView>

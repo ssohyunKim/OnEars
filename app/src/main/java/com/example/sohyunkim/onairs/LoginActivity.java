@@ -40,10 +40,19 @@ public class LoginActivity extends AppCompatActivity{
     Button btn;
     String userID;
 
+    private SharedPreferences Data;
+    private boolean saveLoginData;
+    private String name;
+    private String age;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
+
+      /*//설정값 불러오기
+        Data = getSharedPreferences("Data", MODE_PRIVATE);
+        load();*/
 
         //USERID
         userID = null;
@@ -56,10 +65,17 @@ public class LoginActivity extends AppCompatActivity{
         //원하는 카테고리
         radioGroup1 = (RadioGroup)findViewById(R.id.radioGroup1);
 
+       if(saveLoginData){
+            nameInput.setText(name);
+            ageInput.setText(age);
+        }
+
         btn = (Button) findViewById(R.id.sendButton);
         btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                //save();
+
                 RadioButton rd = (RadioButton)findViewById(radioGroup0.getCheckedRadioButtonId());
                 RadioButton rd1 = (RadioButton)findViewById(radioGroup1.getCheckedRadioButtonId());
 
@@ -79,5 +95,17 @@ public class LoginActivity extends AppCompatActivity{
             }
         });
     }
+    /*private void save(){
+        SharedPreferences.Editor editor = Data.edit();
+        editor.putString("NAME",nameInput.getText().toString().trim());
+        editor.putString("AGE",ageInput.getText().toString().trim());
+
+        editor.apply();
+    }*/
+    /*private  void  load(){
+        saveLoginData = Data.getBoolean("SAVE_LOGIN_DATA",false);
+        name = Data.getString("NAME","");
+        age = Data.getString("AGE", "");
+    }*/
 }
 

@@ -51,6 +51,8 @@ public class Response {
         return state;
     }
 
+
+
     /**
      * Sets the value of state.
      *

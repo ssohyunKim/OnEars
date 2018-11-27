@@ -25,16 +25,21 @@
         android:padding="5dp"
         android:text="text"
         android:textColor="@android:color/white"
-        android:textSize="7pt"
-        />
+        android:textSize="7pt" />
 
       <LinearLayout
         android:id="@+id/buttonWrapperLayout"
         android:layout_below="@id/text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
+        android:orientation="horizontal"
         android:visibility="gone">
+
+        <View
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_weight="1"/>
+
       <ImageButton xmlns:android="http://schemas.android.com/apk/res/android"
           android:id="@+id/play_button"
           android:layout_width="50dp"
@@ -44,26 +49,29 @@
           android:visibility="gone"/>
 
       <ImageButton xmlns:android="http://schemas.android.com/apk/res/android"
-          android:id="@+id/pause_button"
+          android:id="@+id/stop_button"
           android:layout_width="50dp"
           android:layout_height="40dp"
           android:background="?attr/selectableItemBackground"
-          android:src="@drawable/pause"
+          android:src="@drawable/stop"
           android:visibility="gone"/>
 
-      <ImageButton xmlns:android="http://schemas.android.com/apk/res/android"
+        <ImageButton xmlns:android="http://schemas.android.com/apk/res/android"
+            android:id="@+id/url_button"
+            android:layout_width="50dp"
+            android:layout_height="40dp"
+            android:background="?attr/selectableItemBackground"
+            android:src="@drawable/navigation"
+            android:visibility="gone"/>
+
+      <!--<ImageButton xmlns:android="http://schemas.android.com/apk/res/android"
           android:id="@+id/translate_button"
           android:layout_width="50dp"
           android:layout_height="40dp"
           android:background="?attr/selectableItemBackground"
           android:src="@drawable/translate"
-          android:visibility="gone"/>
+          android:visibility="gone"/>-->
 
     </LinearLayout>
-
-
-
-
   </RelativeLayout>
-
 </LinearLayout>

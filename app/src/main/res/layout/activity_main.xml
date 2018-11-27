@@ -5,32 +5,12 @@
     android:layout_height="fill_parent"
     android:background="@color/whitesmoke">
 
-    <LinearLayout
-        android:id="@+id/lin_miniplayer"
-        android:layout_width="match_parent"
+    <ImageButton
+        android:id="@+id/setting"
+        android:layout_width="40dp"
         android:layout_height="40dp"
-        android:gravity="center_vertical"
-        android:orientation="horizontal">
-
-
-        <Button
-            android:id="@+id/button2"
-            android:layout_width="120dp"
-            android:layout_height="40dp"
-            android:layout_weight="1"
-            android:background="?attr/selectableItemBackground"
-            android:gravity="center"
-            android:text="더보기"
-            android:textColor="@color/midnightblue" />
-
-        <ImageButton
-            android:id="@+id/setting"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:layout_gravity="right"
-            android:src="@drawable/ic_settings_black_24dp"/>
-
-    </LinearLayout>
+        android:layout_gravity="right"
+        android:src="@drawable/ic_settings_black_24dp"/>
 
     <LinearLayout
         android:layout_width="fill_parent"

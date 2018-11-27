@@ -1,14 +1,19 @@
 package com.example.sohyunkim.onairs;
 
 import android.app.Activity;
+import android.content.ClipData;
+import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.media.MediaPlayer;
+import android.net.Uri;
 import android.os.Bundle;
+import android.text.util.Linkify;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnLongClickListener;
@@ -19,17 +24,25 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
-
+import com.example.sohyunkim.onairs.model.MessageDocumentData;
 import com.example.sohyunkim.project_1.R;
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import static android.content.Context.CLIPBOARD_SERVICE;
 
 public class MainListAdapter extends BaseAdapter {
 
-  Context context;
+  private Context context;
   private final int MY_PERMISSIONS_RECORD_AUDIO = 1;
   private MediaPlayer mediaPlayer;
   private int playbackPosition = 0;
-  public String audioURL;
+  private Map<String, String> audioUrlMap;
+  private Map<String, String> NewsUrlMap;
 
    public class ListContents {
 
@@ -44,11 +57,28 @@ public class MainListAdapter extends BaseAdapter {
 
   private ArrayList<ListContents> m_List;
 
+  public MainListAdapter(Context context){
+    this.context = context;
+  }
 
   public MainListAdapter() {
 
     m_List = new ArrayList<ListContents>();
+    audioUrlMap = new HashMap<>();
+    NewsUrlMap = new HashMap<>();
   }
+
+  public void addAudioUrl(String message, String url) {
+    audioUrlMap.put(message, url);
+  }
+  public String findAudioUrl(String message) {
+    return audioUrlMap.get(message);
+  }
+
+  public void addNewsUrl(String message, String url){
+    NewsUrlMap.put(message,url);
+  }
+  public String findNewsUrl(String message){ return NewsUrlMap.get(message); };
 
 
   // 외부에서 아이템 추가 요청 시 사용
@@ -57,13 +87,11 @@ public class MainListAdapter extends BaseAdapter {
     m_List.add(new ListContents(msg, type));
   }
 
-  // 외부에서 아이템 삭제 요청 시 사용
   public void remove(int _position) {
     m_List.remove(_position);
   }
 
   @Override
-
   public int getCount() {
     return m_List.size();
   }
@@ -78,6 +106,7 @@ public class MainListAdapter extends BaseAdapter {
     return position;
   }
 
+
   @Override
   public View getView(int position, View convertView, ViewGroup parent) {
     final int pos = position;
@@ -89,16 +118,11 @@ public class MainListAdapter extends BaseAdapter {
     TextView textView = null;
     LinearLayout buttonWrapper = null;
     ImageButton playBtn = null;
-    ImageButton pauseBtn = null;
-    ImageButton translateBtn = null;
+    ImageButton stopBtn = null;
+    ImageButton urlBtn = null;
 
     // 리스트가 길어지면서 현재 화면에 보이지 않는 아이템은 converView가 null인 상태로 들어 옴
     if (convertView == null) {
-      //Log.d("MainListAdapter", "convert view null");
-      //Log.d("MainListAdapter", "position : " + position);
-      //Log.d("MainListAdapter", "msg : " + m_List.get(position).msg);
-      //Log.d("MainListAdapter", "type : " + m_List.get(position).type);
-
       // view가 null일 경우 커스텀 레이아웃을 얻어 옴
       LayoutInflater inflater = (LayoutInflater) context
               .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -110,8 +134,8 @@ public class MainListAdapter extends BaseAdapter {
       buttonWrapper = (LinearLayout) convertView
               .findViewById(R.id.buttonWrapperLayout);
       playBtn = (ImageButton) convertView.findViewById(R.id.play_button);
-      pauseBtn = (ImageButton) convertView.findViewById(R.id.pause_button);
-      translateBtn = (ImageButton) convertView.findViewById(R.id.translate_button);
+      stopBtn = (ImageButton) convertView.findViewById(R.id.stop_button);
+      urlBtn = (ImageButton) convertView.findViewById(R.id.url_button);
 
       holder = new CustomHolder();
       holder.wrappingLayout = wrappingLayout;
@@ -119,63 +143,58 @@ public class MainListAdapter extends BaseAdapter {
       holder.chatItemLayout = chatItemLayout;
       holder.buttonWrapper = buttonWrapper;
       holder.playBtn = playBtn;
-      holder.pauseBtn = pauseBtn;
-      holder.translateBtn = translateBtn;
+      holder.stopBtn = stopBtn;
+      holder.urlBtn = urlBtn;
       convertView.setTag(holder);
     } else {
-      //Log.d("MainListAdapter", "convert view not null");
-      //Log.d("MainListAdapter", "position : " + position);
-      //Log.d("MainListAdapter", "msg : " + m_List.get(position).msg);
-      //Log.d("MainListAdapter", "type : " + m_List.get(position).type);
       holder = (CustomHolder) convertView.getTag();
       wrappingLayout = holder.wrappingLayout;
       textView = holder.textView;
       chatItemLayout = holder.chatItemLayout;
       buttonWrapper = holder.buttonWrapper;
       playBtn = holder.playBtn;
-      pauseBtn = holder.pauseBtn;
-      translateBtn = holder.translateBtn;
+      stopBtn = holder.stopBtn;
+      urlBtn = holder.urlBtn;
     }
 
     textView.setText(m_List.get(position).msg);
+    final String news = textView.getText().toString();
+
 
     playBtn.setOnClickListener(new View.OnClickListener() {
       @Override
       public void onClick(View arg0) {
         try {
-          if (mediaPlayer != null) {
+          if (mediaPlayer != null&& mediaPlayer.isPlaying()) {
             mediaPlayer.stop();
             mediaPlayer = null;
-            //(MainActivity)MainActivity.AudioURL.toString();
+          }else {
+            playAudio(findAudioUrl(m_List.get(pos).msg));
           }
-          playAudio(audioURL);
         } catch (Exception e) {
           e.printStackTrace();
         }
       }
     });
 
-
-    pauseBtn.setOnClickListener(new View.OnClickListener() {
+    urlBtn.setOnClickListener(new View.OnClickListener() {
       @Override
       public void onClick(View view) {
-        if (mediaPlayer != null) {
-          //현재 재생위치 저장
-          playbackPosition = mediaPlayer.getCurrentPosition();
-          mediaPlayer.pause();
-        }
-      }
+        Intent intent = new Intent(Intent.ACTION_VIEW);
+        Uri uri = Uri.parse(findNewsUrl(m_List.get(pos).msg));
+        intent.setData(uri);
+        context.startActivity(intent);
+       }
     });
-    translateBtn.setOnClickListener(new View.OnClickListener() {
+    stopBtn.setOnClickListener(new View.OnClickListener() {
       @Override
       public void onClick(View arg0) {
         try {
           if (mediaPlayer != null) {
             mediaPlayer.stop();
+            mediaPlayer.release();
             mediaPlayer = null;
-            //(MainActivity)MainActivity.AudioURL.toString();
           }
-          playAudio(audioURL);
         } catch (Exception e) {
           e.printStackTrace();
         }
@@ -183,23 +202,19 @@ public class MainListAdapter extends BaseAdapter {
     });
 
     if (m_List.get(position).type == ChatItemType.APP_TEXT_BUTTON) {
-      //Log.d("MainListAdapter", "hello my pos is : " + position);
-      //Log.d("MainListAdapter", "my text is : " + textView.getText());
-      //Log.d("MainListAdapter", "my text is : " + textView.getId());
-      //Log.d("MainListAdapter", "my layout is : " + wrappingLayout.getId());
       textView.setVisibility(View.VISIBLE);
       chatItemLayout.setBackgroundResource(R.drawable.new_other_bubble);
       wrappingLayout.setGravity(Gravity.LEFT);
       buttonWrapper.setVisibility(View.VISIBLE);
       playBtn.setVisibility(View.VISIBLE);
-      pauseBtn.setVisibility(View.VISIBLE);
-      translateBtn.setVisibility(View.VISIBLE);
+      stopBtn.setVisibility(View.VISIBLE);
+      urlBtn.setVisibility(View.GONE);
     } else if (m_List.get(position).type == ChatItemType.USER) {
       textView.setVisibility(View.VISIBLE);
       buttonWrapper.setVisibility(View.GONE);
       playBtn.setVisibility(View.GONE);
-      pauseBtn.setVisibility(View.GONE);
-      translateBtn.setVisibility(View.GONE);
+      stopBtn.setVisibility(View.GONE);
+      urlBtn.setVisibility(View.GONE);
       chatItemLayout.setBackgroundResource(R.drawable.new_my_bubble);
       wrappingLayout.setGravity(Gravity.RIGHT);
     } else if(m_List.get(position).type == ChatItemType.TEXT){
@@ -207,33 +222,31 @@ public class MainListAdapter extends BaseAdapter {
       wrappingLayout.setGravity(Gravity.LEFT);
       buttonWrapper.setVisibility(View.GONE);
       playBtn.setVisibility(View.GONE);
-      pauseBtn.setVisibility(View.GONE);
-      translateBtn.setVisibility(View.GONE);
+      stopBtn.setVisibility(View.GONE);
+      urlBtn.setVisibility(View.GONE);
+      chatItemLayout.setBackgroundResource(R.drawable.new_other_bubble);
+    } else if(m_List.get(position).type == ChatItemType.URL_TEXT){
+      textView.setVisibility(View.VISIBLE);
+      wrappingLayout.setGravity(Gravity.LEFT);
+      buttonWrapper.setVisibility(View.VISIBLE);
+      playBtn.setVisibility(View.GONE);
+      stopBtn.setVisibility(View.GONE);
+      urlBtn.setVisibility(View.VISIBLE);
       chatItemLayout.setBackgroundResource(R.drawable.new_other_bubble);
     }
 
-/*    // 리스트 아이템을 터치 했을 때 이벤트 발생
-    convertView.setOnClickListener(new OnClickListener() {
+      convertView.setOnLongClickListener(new OnLongClickListener() {
+          @Override
+          public boolean onLongClick(View v) {
+              ClipboardManager clipboardManager = (ClipboardManager)context.getSystemService(CLIPBOARD_SERVICE);
+              ClipData clipData = ClipData.newPlainText("news", news);
+              clipboardManager.setPrimaryClip(clipData);
+              Toast.makeText(context, "클립보드에 복사되었습니다.", Toast.LENGTH_SHORT).show();
+              return true;
+          }
+      });
 
-      @Override
-      public void onClick(View v) {
-        // 터치 시 해당 아이템 이름 출력
-        Toast.makeText(context, "리스트 클릭 : " + m_List.get(pos), Toast.LENGTH_SHORT).show();
-      }
-    });
-
-    // 리스트 아이템을 길게 터치 했을때 이벤트 발생
-    convertView.setOnLongClickListener(new OnLongClickListener() {
-
-      @Override
-      public boolean onLongClick(View v) {
-        // 터치 시 해당 아이템 이름 출력
-        Toast.makeText(context, "리스트 롱 클릭 : " + m_List.get(pos), Toast.LENGTH_SHORT).show();
-        return true;
-      }
-    });*/
-
-    return convertView;
+      return convertView;
   }
 
   private class CustomHolder {
@@ -243,18 +256,24 @@ public class MainListAdapter extends BaseAdapter {
     TextView textView;
     LinearLayout buttonWrapper;
     ImageButton playBtn;
-    ImageButton pauseBtn;
-    ImageButton translateBtn;
+    ImageButton stopBtn;
+    ImageButton urlBtn;
   }
 
-  //미디어를 재생하는 사용자 정의 메소드
-  public void playAudio(String audioURL) throws Exception {
 
-    //외부 서버나 외부 음악파일 다운로드 시
+  public void playAudio(String audioUrl) throws Exception {
     mediaPlayer = new MediaPlayer();
-    mediaPlayer.setDataSource(audioURL);
-    //다운로드가 다될 때 까지 준비하는 메소드이며 준비가 다되면 그다음 단계로 진행
-    mediaPlayer.prepare();
-    mediaPlayer.start();
+    try{
+      mediaPlayer.setDataSource(audioUrl);
+      mediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+        @Override
+        public void onPrepared(MediaPlayer mp) {
+          mp.start();
+        }
+      });
+      mediaPlayer.prepareAsync();
+    }catch (IOException e){
+      e.printStackTrace();
+    }
   }
 }
