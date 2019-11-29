@@ -1,5 +1,7 @@
-# **OnEars**
-##2018 AWS Project
+OnEars
+======
+2018 AWS Project
+----------------
 
 ## 1. Introduction
 
